@@ -1,0 +1,83 @@
+issues:
+  # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
+  max-issues-per-linter: 0
+
+  # Maximum count of issues with the same text. Set to 0 to disable. Default is 3.
+  max-same-issues: 0
+
+  exclude-rules:
+    # Exclude some linters from running on tests files.
+    - path: cmd
+      linters:
+        - gci
+        - funlen
+    - path: migrations
+      linters:
+        - gochecknoinits
+        - dupl
+linters:
+  disable-all: true
+  enable:
+    - gci
+    - gocyclo
+    - gomnd
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - gosimple
+    - structcheck
+    - varcheck
+    - ineffassign
+    - deadcode
+    - typecheck
+    - revive
+    - gosec
+    - unconvert
+    - dupl
+    - goconst
+    - gofmt
+    - goimports
+    - misspell
+    - lll
+    - unparam
+    - dogsled
+    - nakedret
+    - prealloc
+    - gocritic
+    - gochecknoinits
+    - gochecknoglobals
+    - godox
+    - whitespace
+    - funlen
+    - goprintffuncname
+    - exportloopref
+    - nestif
+
+# all available settings of specific linters
+linters-settings:
+  funlen:
+    lines: 150
+    statements: 80
+  gomnd:
+    settings:
+      mnd:
+        ignored-functions:
+          - strconv.*
+          - time.*
+          - flag.*
+  goimports:
+    # put imports beginning with prefix after 3rd-party packages;
+    # it's a comma-separated list of prefixes
+    local-prefixes: "books-service"
+  lll:
+    tab-width: 4
+    line-length: 160
+  revive:
+    rules:
+      - name: var-naming
+        arguments: [["ID", "UID", "UUID", "URL", "IP", "API", "HTTP"], []]
+run:
+  modules-download-mode: vendor
+  timeout: 3m
+  tests: false
