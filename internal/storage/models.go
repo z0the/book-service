@@ -10,6 +10,8 @@ func getAllModelsList() []interface{} {
 	}
 }
 
+type Books []*Book
+
 type Book struct {
 	ID        string `gorm:"primarykey"`
 	CreatedAt time.Time

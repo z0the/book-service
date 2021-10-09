@@ -26,14 +26,21 @@ func (c *Controller) init() {
 			Method:    http.MethodPost,
 			RequestT:  GetBookByIDReq{},
 			ResponseT: GetBookByIDResp{},
-			Endpoint:  makeGetBookByID(c),
+			Endpoint:  makeGetBookByIDEndpoint(c),
 		},
 		{
 			Path:      "/createBook",
 			Method:    http.MethodPost,
 			RequestT:  CreateBookReq{},
 			ResponseT: CreateBookResp{},
-			Endpoint:  makeCreateBook(c),
+			Endpoint:  makeCreateBookEndpoint(c),
+		},
+		{
+			Path:      "/getBookList",
+			Method:    http.MethodPost,
+			RequestT:  GetBookListReq{},
+			ResponseT: GetBookListResp{},
+			Endpoint:  makeGetBookListEndpoint(c),
 		},
 	}
 }

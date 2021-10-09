@@ -10,7 +10,15 @@ type Book struct {
 	Author `json:"author"`
 }
 
-type Books []Book
+func newBooksFST(storeBooks storage.Books) Books {
+	var res Books
+	for _, storeBook := range storeBooks {
+		res = append(res, newBookFST(storeBook))
+	}
+	return res
+}
+
+type Books []*Book
 
 func (b *Book) convertToStorage() *storage.Book {
 	return &storage.Book{

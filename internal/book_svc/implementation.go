@@ -2,6 +2,7 @@ package book_svc
 
 import (
 	"context"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -32,9 +33,6 @@ func (s *service) CreateBook(ctx context.Context, book *Book) error {
 }
 
 func (s *service) GetBookByID(ctx context.Context, id string) (*Book, error) {
-	if id == "12" {
-		return nil, terrors.MakeBadRequestErr("wrong id")
-	}
 	book, err := s.storage.GetBookByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -45,6 +43,16 @@ func (s *service) GetBookByID(ctx context.Context, id string) (*Book, error) {
 	return newBookFST(book), nil
 }
 
-func (s *service) GetBookList(ctx context.Context, fromID uint, limit int) (Books, error) {
-	return nil, nil
+func (s *service) GetBookList(ctx context.Context, fromDate time.Time, limit int) (Books, error) {
+	if limit > 100 {
+		limit = 100
+	}
+	books, err := s.storage.GetBookList(ctx, fromDate, limit)
+	if err != nil {
+		return nil, err
+	}
+	if books == nil || len(books) == 0 {
+		return nil, terrors.MakeNotFoundErr("no books")
+	}
+	return newBooksFST(books), nil
 }

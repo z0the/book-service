@@ -3,15 +3,16 @@ package http
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/go-kit/kit/endpoint"
 
 	booksvc "books-service/internal/book_svc"
 )
 
-var typeAssertionError = errors.New("failed to do type assertion")
+var wrongBodyError = errors.New("wrong request body")
 
-// Get book
+// getBook
 
 type GetBookByIDReq struct {
 	ID string `json:"id"`
@@ -21,11 +22,11 @@ type GetBookByIDResp struct {
 	Book *booksvc.Book `json:"book,omitempty"`
 }
 
-func makeGetBookByID(c *Controller) endpoint.Endpoint {
+func makeGetBookByIDEndpoint(c *Controller) endpoint.Endpoint {
 	ep := func(ctx context.Context, request interface{}) (interface{}, error) {
 		typedRequest, ok := request.(*GetBookByIDReq)
 		if !ok {
-			return nil, typeAssertionError
+			return nil, wrongBodyError
 		}
 		return c.getBookByID(ctx, typedRequest)
 	}
@@ -40,27 +41,7 @@ func (c *Controller) getBookByID(ctx context.Context, req *GetBookByIDReq) (*Get
 	return &GetBookByIDResp{Book: book}, nil
 }
 
-// Create book
-
-type Book struct {
-	Name   string `json:"name"`
-	Length uint   `json:"length"`
-	Text   string `json:"text"`
-}
-
-func (b *Book) convertToService() *booksvc.Book {
-	return &booksvc.Book{
-		Name:   b.Name,
-		Length: b.Length,
-		Text:   b.Text,
-	}
-}
-
-type Author struct {
-	Name       string
-	FamilyName string
-	Age        uint
-}
+// createBook
 
 type CreateBookReq struct {
 	Book `json:"book"`
@@ -68,11 +49,11 @@ type CreateBookReq struct {
 
 type CreateBookResp struct{}
 
-func makeCreateBook(c *Controller) endpoint.Endpoint {
+func makeCreateBookEndpoint(c *Controller) endpoint.Endpoint {
 	ep := func(ctx context.Context, request interface{}) (interface{}, error) {
 		typedRequest, ok := request.(*CreateBookReq)
 		if !ok {
-			return nil, typeAssertionError
+			return nil, wrongBodyError
 		}
 		return c.createBook(ctx, typedRequest)
 	}
@@ -85,4 +66,34 @@ func (c *Controller) createBook(ctx context.Context, req *CreateBookReq) (*Creat
 		return nil, err
 	}
 	return &CreateBookResp{}, nil
+}
+
+// getBookList
+
+type GetBookListReq struct {
+	FromDateUnix int64 `json:"from_date"`
+	Limit        int   `json:"limit"`
+}
+
+type GetBookListResp struct {
+	booksvc.Books `json:"books"`
+}
+
+func makeGetBookListEndpoint(c *Controller) endpoint.Endpoint {
+	ep := func(ctx context.Context, request interface{}) (interface{}, error) {
+		typedRequest, ok := request.(*GetBookListReq)
+		if !ok {
+			return nil, wrongBodyError
+		}
+		return c.getBookList(ctx, typedRequest)
+	}
+	return ep
+}
+
+func (c *Controller) getBookList(ctx context.Context, req *GetBookListReq) (*GetBookListResp, error) {
+	books, err := c.bookSvc.GetBookList(ctx, time.Unix(req.FromDateUnix, 0), req.Limit)
+	if err != nil {
+		return nil, err
+	}
+	return &GetBookListResp{Books: books}, nil
 }
